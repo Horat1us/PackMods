@@ -23,34 +23,12 @@ namespace PackMods
         public PackMods()
         {
             wotPath = Properties.Settings.Default.wotPath;
-
-            while(!Directory.Exists(wotPath + "\\res_mods"))
+            if(!this.changePath())
             {
-                using (FolderBrowserDialog fbd = new FolderBrowserDialog())
-                {
-                    fbd.ShowNewFolderButton = false;
-                    fbd.Description = "Select WorldOfTanks folder (must contain res_mods folder)";
-                    DialogResult res;
-                    try
-                    {
-                        res = fbd.ShowDialog();
-                    }
-                    catch(InvalidCastException)
-                    {
-                        MessageBox.Show("Some error while selecting path");
-                        res = DialogResult.OK;
-                    }
-                    if (res == DialogResult.OK)
-                    {
-                        Properties.Settings.Default.wotPath = this.wotPath = fbd.SelectedPath;
-                        Properties.Settings.Default.Save();
-                    }
-                    else
-                    {
-                        Environment.Exit(0);
-                    }
-                }
-            } 
+                Environment.Exit(0);
+            }
+
+            
             this.res_mods = wotPath + "\\res_mods";
 
             this.initPatch();
@@ -77,6 +55,38 @@ namespace PackMods
                 }
             }
             InitializeComponent();
+        }
+        private bool changePath()
+        {
+            while (!Directory.Exists(wotPath + "\\res_mods"))
+            {
+                using (FolderBrowserDialog fbd = new FolderBrowserDialog())
+                {
+                    fbd.ShowNewFolderButton = false;
+                    fbd.Description = "Select WorldOfTanks folder (must contain res_mods folder)";
+                    DialogResult res;
+                    try
+                    {
+                        res = fbd.ShowDialog();
+                    }
+                    catch (InvalidCastException)
+                    {
+                        MessageBox.Show("Some error while selecting path");
+                        res = DialogResult.OK;
+                    }
+                    if (res == DialogResult.OK)
+                    {
+                        Properties.Settings.Default.wotPath = this.wotPath = fbd.SelectedPath;
+                        Properties.Settings.Default.Save();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
         private void initPatch()
         {
@@ -154,6 +164,18 @@ namespace PackMods
         {
             Properties.Settings.Default.launcher = launcher.Checked;
             Properties.Settings.Default.Save();
+        }
+
+
+        private void changeWotPath_Click(object sender, EventArgs e)
+        {
+            string pathCached = this.wotPath;
+            this.wotPath = "";
+            if(!this.changePath())
+            {
+                this.wotPath = pathCached;
+            }
+            wotPathInput.Text = this.wotPath;
         }
     }
 }
